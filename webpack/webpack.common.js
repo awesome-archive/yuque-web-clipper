@@ -2,38 +2,114 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
-const merge = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackChromeReloaderPlugin = require('webpack-chrome-extension-reloader');
-const ChromeManifestPlugin = require('./chromeManifestPlugin');
+const tsImportPluginFactory = require('ts-import-plugin');
+const WebpackCreateExtensionManifestPlugin = require('webpack-create-extension-manifest-plugin');
 
 function resolve(dir) {
   return path.join(__dirname, '..', dir);
 }
 
-const baseConfig = {
+let manifestExtra = {
+  name: 'Web Clipper',
+  permissions: ['notifications', 'activeTab', 'storage', 'https://*.clipper.website/*'],
+  optional_permissions: ['cookies', '<all_urls>'],
+};
+
+let background = resolve('src/main/background.main.chrome.ts');
+
+if (process.env.TARGET_BROWSER === 'Firefox') {
+  manifestExtra = {
+    name: 'Web Clipper',
+    permissions: [
+      'notifications',
+      'activeTab',
+      'storage',
+      'https://*.clipper.website/*',
+      'cookies',
+      '<all_urls>',
+    ],
+  };
+  if (process.env.NODE_ENV === 'development') {
+    manifestExtra.applications = {
+      gecko: {
+        id: 'web-clipper@web-clipper',
+      },
+    };
+  }
+  background = resolve('src/main/background.main.firefox.ts');
+}
+
+module.exports = {
+  entry: {
+    tool: resolve('src/main/tool.main.ts'),
+    background,
+    content_script: resolve('src/browser/content/index.tsx'),
+  },
   output: {
-    path: resolve('dist/js'),
-    filename: '[name].js'
+    path: resolve('dist'),
+    filename: '[name].js',
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/](react|react-dom|antd|lodash|@ant-design)[\\/]/,
+          name: 'vendor',
+          chunks: 'all',
+        },
+      },
+    },
+  },
+  resolve: {
+    alias: {
+      '@': resolve('src/'),
+      common: resolve('src/common/'),
+      components: resolve('src/components/'),
+      browserActions: resolve('src/browser/actions/'),
+      pageActions: resolve('src/actions'),
+      extensions: resolve('src/extensions/'),
+    },
+    extensions: ['.ts', '.tsx', '.js', 'less'],
   },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
+        test: /\.(jsx|tsx|js|ts)$/,
+        loader: 'ts-loader',
+        options: {
+          transpileOnly: true,
+          getCustomTransformers: () => ({
+            before: [
+              tsImportPluginFactory([
+                {
+                  style: false,
+                  libraryName: 'lodash',
+                  libraryDirectory: null,
+                  camel2DashComponentName: false,
+                },
+                { style: true },
+              ]),
+            ],
+          }),
+          compilerOptions: {
+            module: 'esnext',
+          },
+        },
+        exclude: /node_modules/,
       },
       {
         include: /hypermd|codemirror/,
         test: [/\.css$/],
         use: [
           {
-            loader: 'style-loader'
+            loader: 'style-loader',
           },
           {
-            loader: 'css-loader'
-          }
-        ]
+            loader: 'css-loader',
+          },
+        ],
       },
       {
         test: /\.(png|jpg|gif)$/,
@@ -41,109 +117,87 @@ const baseConfig = {
       },
       {
         test: /\.less$/,
+        include: /node_modules\/antd/,
         use: [
           {
-            loader: 'style-loader'
-          }, {
-            loader: 'css-loader'
-          }, {
+            loader: 'style-loader',
+          },
+          {
+            loader: 'css-loader',
+          },
+          {
             loader: 'less-loader',
             options: {
-              javascriptEnabled: true
-            }
-          }]
+              modifyVars: {
+                '@body-background': 'transparent',
+              },
+              javascriptEnabled: true,
+            },
+          },
+        ],
       },
       {
+        test: /\.less$/,
         exclude: /node_modules/,
-        test: [/\.scss$/, /\.css$/],
         use: [
           {
-            loader: 'style-loader'
+            loader: 'style-loader',
           },
           {
-            loader: 'typings-for-css-modules-loader',
+            loader: 'css-loader',
             options: {
               modules: true,
-              namedExport: true,
               camelCase: true,
-              localIdentName: '[path][name]__[local]--[hash:base64:5]'
-            }
+              localIdentName: '[path][name]__[local]--[hash:base64:5]',
+            },
           },
-
           {
-            loader: 'sass-loader'
-          }
-        ]
-      }
-    ]
-  },
-  resolve: {
-    extensions: ['.ts', '.tsx', '.js', 'scss', 'less'],
-    alias: {
-      '@': resolve('src'),
-      'antd-style': resolve('/node_modules/antd/dist/antd.less')
-    }
+            loader: 'less-loader',
+            options: {
+              modifyVars: {
+                '@body-background': 'transparent',
+              },
+              javascriptEnabled: true,
+            },
+          },
+        ],
+      },
+    ],
   },
   plugins: [
-    process.env.NODE_ENV === 'development' ? new WebpackChromeReloaderPlugin({
-      reloadPage: false,
-      entries: {
-        contentScript: 'content_script',
-        background: 'background'
-      }
-    }) : null,
+    process.env.NODE_ENV === 'development'
+      ? new WebpackChromeReloaderPlugin({
+          reloadPage: false,
+          entries: {
+            contentScript: 'content_script',
+            background: 'background',
+          },
+        })
+      : null,
     new webpack.ProvidePlugin({
       $: 'jquery',
-      jQuery: 'jquery'
-    })
-  ].filter(plugin => !!plugin)
-};
-
-const commonConfig = merge(baseConfig, {
-  entry: {
-    initialize: resolve('src/pages/initialize/index.tsx'),
-    background: resolve('src/background/index.ts'),
-    tool: resolve('src/pages/tool/index.tsx')
-  },
-  optimization: {
-    splitChunks: {
-      name: 'vendor',
-      chunks: 'initial'
-    }
-  },
-  plugins: [
+      jQuery: 'jquery',
+    }),
     new CleanWebpackPlugin(['dist'], {
       root: path.resolve(__dirname, '../'),
-      verbose: true
+      verbose: true,
     }),
     new CopyWebpackPlugin([
       {
-        from: resolve('chrome'),
+        from: resolve('chrome/icons'),
         to: resolve('dist'),
-        ignore: ['.*']
-      }
+        ignore: ['.*'],
+      },
     ]),
-    new ChromeManifestPlugin({
-      packageJson: path.resolve(__dirname, '../package.json'),
-      out: path.resolve(__dirname, '../dist/manifest.json'),
+    new WebpackCreateExtensionManifestPlugin({
+      output: resolve('dist/manifest.json'),
+      extra: manifestExtra,
     }),
     new HtmlWebpackPlugin({
-      title: '语雀剪藏向导',
-      filename: '../initialize.html',
-      chunks: ['initialize', 'vendor']
+      title: 'Web Clipper',
+      filename: resolve('dist/tool.html'),
+      chunks: ['tool'],
+      template: 'src/index.html',
     }),
-    new HtmlWebpackPlugin({
-      title: '语雀剪藏插件',
-      filename: '../tool.html',
-      chunks: ['tool', 'vendor']
-    }),
-  ]
-});
-
-const contentScriptConfig = merge(baseConfig, {
-  entry: {
-    content_script: resolve('src/content/index.tsx')
-  }
-});
-
-module.exports = [commonConfig, contentScriptConfig];
+  ].filter(plugin => !!plugin),
+};

@@ -1,127 +1,151 @@
 {
-  "name": "yuque-web-clipper",
-  "version": "0.0.6",
-  "description": "非官方语雀剪藏软件",
+  "name": "web-clipper",
+  "version": "1.17.0",
+  "description": "Clip anything to anywhere.",
   "scripts": {
-    "commit": "git-cz",
+    "dist": "tsc",
     "test": "jest --verbose",
     "dev": "NODE_ENV=development webpack --config webpack/webpack.dev.js --watch",
+    "dev:ff": "TARGET_BROWSER=Firefox NODE_ENV=development webpack --config webpack/webpack.dev.js --watch",
     "build": "webpack --config webpack/webpack.prod.js",
     "lint": "eslint --ext .js,.ts,.tsx --ignore-pattern bad.* .",
-    "release": "zsh shell/release.zsh"
+    "release": "npm run build && node script/release.js",
+    "release:beta": "npm run build && node script/release_beta.js",
+    "release:ff": "TARGET_BROWSER=Firefox npm run build && node script/release_ff.js",
+    "travis": "npm run build && node script/travis_release.js",
+    "lint-staged": "lint-staged",
+    "format": "node script/formatLocaleMessage.js"
   },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/cz-conventional-changelog"
-    }
+  "lint-staged": {
+    "src/**/*.{ts, tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
-  "author": "Diamondyuan",
+  "pre-commit": [
+    "lint-staged"
+  ],
+  "author": "DiamondYuan",
   "license": "MIT",
   "dependencies": {
-    "antd": "^3.8.4",
-    "axios": "^0.18.0",
-    "codemirror": "^5.40.2",
-    "dayjs": "^1.7.5",
-    "hypermd": "^0.3.10",
-    "immutability-helper": "^2.8.1",
-    "jquery": "^3.3.1",
-    "lodash": "^4.17.10",
-    "mobx": "^5.1.0",
-    "mobx-react": "^5.2.8",
-    "qrcode": "^1.3.0",
-    "qs": "^6.5.2",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
-    "readability": "DiamondYuan/readability",
-    "turndown": "^5.0.1"
+    "@web-clipper/area-selector": "^0.1.1",
+    "@web-clipper/chrome-promise": "^0.1.2",
+    "@web-clipper/extensions": "^0.0.17",
+    "@web-clipper/highlight": "^0.0.20",
+    "@web-clipper/message-listener-combiner": "^0.1.0",
+    "@web-clipper/readability": "^0.2.1",
+    "@web-clipper/shared": "^0.0.20",
+    "@web-clipper/turndown": "^0.1.4",
+    "antd": "^3.26.6",
+    "axios": "^0.19.0",
+    "classnames": "^2.2.6",
+    "codemirror": "^5.47.0",
+    "copy-to-clipboard": "^3.2.0",
+    "crypto-js": "^3.1.9-1",
+    "dayjs": "^1.8.17",
+    "dva": "^2.6.0-beta.19",
+    "dva-loading": "^3.0.19",
+    "dva-logger": "^1.0.0",
+    "dva-model-creator": "^0.4.3",
+    "hypermd": "^0.3.11",
+    "immutability-helper": "^3.0.1",
+    "jquery": "^3.4.0",
+    "lodash": "^4.17.11",
+    "mobx": "^5.15.1",
+    "mobx-react": "^6.1.4",
+    "qrcode": "^1.4.1",
+    "qs": "^6.7.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-intl": "^3.9.2",
+    "react-markdown": "^4.1.0",
+    "reflect-metadata": "^0.1.13",
+    "regenerator-runtime": "^0.13.3",
+    "remark": "^11.0.2",
+    "remark-pangu": "^1.0.1",
+    "showdown": "^1.9.0",
+    "tldjs": "^2.3.1",
+    "typedi": "^0.8.0",
+    "umi-request": "^1.2.15"
   },
   "devDependencies": {
-    "@types/chrome": "^0.0.72",
-    "@types/enzyme": "^3.1.14",
+    "@diamondyuan/eslint-config-react-typescript": "^7.0.1",
+    "@types/chrome": "^0.0.91",
+    "@types/classnames": "^2.2.9",
+    "@types/codemirror": "^0.0.76",
+    "@types/crypto-js": "^3.1.43",
+    "@types/enzyme": "^3.9.3",
     "@types/enzyme-adapter-react-16": "^1.0.3",
-    "@types/jest": "^23.3.1",
+    "@types/history": "^4.7.2",
+    "@types/jest": "^24.0.11",
     "@types/jquery": "^3.3.6",
-    "@types/lodash": "^4.14.116",
-    "@types/qrcode": "^1.3.0",
-    "@types/qs": "^6.5.1",
-    "@types/react": "^16.4.12",
-    "@types/react-dom": "^16.0.7",
-    "babel-eslint": "^9.0.0",
+    "@types/lodash": "^4.14.132",
+    "@types/qrcode": "^1.3.3",
+    "@types/qs": "^6.9.0",
+    "@types/react": "^16.8.18",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-redux": "^7.0.8",
+    "@types/react-router": "^5.1.3",
+    "@types/redux-logger": "^3.0.6",
+    "@types/remote-redux-devtools": "^0.5.3",
+    "@types/showdown": "^1.9.3",
+    "@types/tldjs": "^2.3.0",
+    "@types/webpack-env": "^1.13.9",
+    "@typescript-eslint/eslint-plugin": "^2.11.0",
+    "@typescript-eslint/parser": "^2.11.0",
+    "babel-eslint": "^10.0.3",
     "clean-webpack-plugin": "^0.1.19",
-    "commitizen": "^2.10.1",
-    "copy-webpack-plugin": "^4.5.2",
+    "compressing": "^1.4.0",
+    "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^1.0.0",
-    "cz-conventional-changelog": "^2.1.0",
     "enzyme": "^3.6.0",
-    "enzyme-adapter-react-16": "^1.5.0",
-    "eslint": "^5.4.0",
-    "eslint-config-airbnb": "^17.1.0",
-    "eslint-config-alloy": "^1.4.2",
-    "eslint-plugin-html": "^4.0.5",
-    "eslint-plugin-import": "^2.14.0",
-    "eslint-plugin-jsx-a11y": "^6.1.1",
-    "eslint-plugin-react": "^7.11.1",
-    "eslint-plugin-typescript": "^0.12.0",
+    "enzyme-adapter-react-16": "^1.14.0",
+    "eslint": "^6.7.2",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-import-resolver-webpack": "^0.12.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "eslint-plugin-react": "^7.17.0",
+    "eslint-plugin-react-hooks": "^2.3.0",
     "html-webpack-plugin": "^3.2.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^23.5.0",
+    "jest": "^24.9.0",
     "less": "^3.8.1",
-    "less-loader": "^4.1.0",
-    "node-sass": "^4.9.3",
-    "sass-loader": "^7.1.0",
-    "style-loader": "^0.22.1",
-    "ts-jest": "^23.1.4",
-    "ts-loader": "^4.5.0",
-    "typescript": "^3.0.3",
-    "typescript-eslint-parser": "^18.0.0",
-    "typings-for-css-modules-loader": "^1.7.0",
+    "less-loader": "^5.0.0",
+    "lint-staged": "^9.5.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^1.19.1",
+    "pump": "^3.0.0",
+    "style-loader": "^0.23.1",
+    "terser-webpack-plugin": "^2.3.1",
+    "ts-import-plugin": "^1.5.5",
+    "ts-jest": "^24.0.2",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.3",
     "url-loader": "^1.1.1",
-    "webpack": "^4.17.1",
-    "webpack-chrome-extension-reloader": "^0.8.3",
-    "webpack-cli": "^3.1.0",
-    "webpack-merge": "^4.1.4"
+    "webpack": "^4.41.5",
+    "webpack-chrome-extension-reloader": "^1.3.0",
+    "webpack-cli": "^3.3.2",
+    "webpack-create-extension-manifest-plugin": "^1.1.0",
+    "webpack-merge": "^4.2.2"
   },
-  "chrome": {
+  "manifest": {
     "manifest_version": 2,
-    "name": "语雀剪藏",
     "icons": {
-      "16": "icons/yuque-16.png",
-      "48": "icons/yuque-48.png",
-      "128": "icons/yuque-128.png"
+      "128": "icon.png"
     },
     "browser_action": {
       "default_icon": {
-        "19": "icons/yuque-19.png",
-        "38": "icons/yuque-38.png"
+        "128": "icon.png"
       }
     },
-    "content_scripts": [
-      {
-        "matches": [
-          "<all_urls>"
-        ],
-        "js": [
-          "js/content_script.js"
-        ],
-        "run_at": "document_end",
-        "all_frames": false
-      }
-    ],
     "background": {
       "scripts": [
-        "js/vendor.js",
-        "js/background.js"
+        "background.js"
       ]
     },
     "web_accessible_resources": [
       "tool.html"
     ],
-    "permissions": [
-      "cookies",
-      "tabs",
-      "storage",
-      "contextMenus",
-      "<all_urls>"
-    ]
+    "content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com https://at.alicdn.com; object-src 'self'"
   }
 }

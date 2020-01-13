@@ -1,0 +1,100 @@
+import React from 'react';
+import { bindActionCreators, Dispatch } from 'redux';
+import { connect } from 'dva';
+import { changeData } from 'pageActions/clipper';
+import { asyncRunExtension } from 'pageActions/userPreference';
+import { SerializedExtensionWithId } from '@web-clipper/extensions';
+import * as HyperMD from 'hypermd';
+import { EditorContainer } from 'components/container';
+import { isUndefined } from 'common/object';
+import { GlobalStore } from 'common/types';
+
+const useActions = {
+  asyncRunExtension: asyncRunExtension.started,
+  changeData,
+};
+
+const mapStateToProps = ({
+  clipper: { clipperData },
+  userPreference: { liveRendering, showLineNumber },
+}: GlobalStore) => {
+  return {
+    liveRendering,
+    showLineNumber,
+    clipperData,
+  };
+};
+type PageOwnProps = {
+  pathname: string;
+  extension: SerializedExtensionWithId;
+};
+type PageProps = ReturnType<typeof mapStateToProps> & typeof useActions & PageOwnProps;
+
+const editorId = 'DiamondYuan_Love_LJ';
+
+class ClipperPluginPage extends React.Component<PageProps> {
+  private myCodeMirror: any;
+
+  checkExtension = () => {
+    const { extension, clipperData, pathname } = this.props;
+    const data = clipperData[pathname];
+    if (isUndefined(data)) {
+      this.props.asyncRunExtension({
+        pathname,
+        extension,
+      });
+    }
+    return data || '';
+  };
+
+  componentDidUpdate = () => {
+    const data = this.checkExtension();
+    if (this.myCodeMirror) {
+      const value = this.myCodeMirror.getValue();
+      if (data !== value) {
+        try {
+          this.myCodeMirror.setValue(data);
+        } catch (_error) {}
+      }
+    }
+  };
+
+  componentDidMount = () => {
+    const data = this.checkExtension();
+    let myTextarea = document.getElementById(editorId) as HTMLTextAreaElement;
+    this.myCodeMirror = HyperMD.fromTextArea(myTextarea, {
+      lineNumbers: !!this.props.showLineNumber,
+      hmdModeLoader: false,
+    });
+    if (this.myCodeMirror) {
+      const value = this.myCodeMirror.getValue();
+      if (data !== value) {
+        this.myCodeMirror.setValue(data);
+      }
+    }
+    this.myCodeMirror.on('change', (editor: any) => {
+      this.props.changeData({
+        data: editor.getValue(),
+        pathName: this.props.pathname,
+      });
+    });
+    this.myCodeMirror.setSize(800, 621);
+    if (this.props.liveRendering) {
+      HyperMD.switchToHyperMD(this.myCodeMirror);
+    } else {
+      HyperMD.switchToNormal(this.myCodeMirror);
+    }
+  };
+
+  render() {
+    return (
+      <EditorContainer>
+        <textarea id={editorId} />
+      </EditorContainer>
+    );
+  }
+}
+
+export default connect(mapStateToProps, (dispatch: Dispatch) =>
+  bindActionCreators<typeof useActions, typeof useActions>(useActions, dispatch)
+)(ClipperPluginPage as React.ComponentType<PageProps>);
