@@ -1,49 +1,78 @@
-
-<h1 align="center">语雀剪藏</h1>
+<h1 align="center">Web Clipper</h1>
 <p align="center">
-    <a href="https://travis-ci.org/yuquewebclipper/yuque-web-clipper">
-      <img src="https://img.shields.io/travis/yuquewebclipper/yuque-web-clipper/master.svg?style=flat-square" alt="Build Status">
+    <a href="https://github.com/webclipper/web-clipper/actions">
+      <img src="https://github.com/webclipper/web-clipper/workflows/CI%20Test/badge.svg" alt="CI Test Status">
     </a>
-    <a href="https://codecov.io/gh/yuquewebclipper/yuque-web-clipper">
-      <img src="https://img.shields.io/codecov/c/github/yuquewebclipper/yuque-web-clipper/master.svg?style=flat-square" alt="Codecov">
+     <a href="https://github.com/webclipper/web-clipper/actions">
+      <img src="https://github.com/webclipper/web-clipper/workflows/Release resource/badge.svg" alt="Release resource status">
+    </a>
+    <a href="https://codecov.io/gh/webclipper/web-clipper">
+      <img src="https://img.shields.io/codecov/c/github/webclipper/web-clipper/master.svg?style=flat-square" alt="Codecov">
     </a>
 </p>
 
-### 安装
+You can use Web Clipper to save anything on the web to anywhere.
 
-[Chrome商店](https://chrome.google.com/webstore/detail/语雀剪藏/pdecnpgmmhjfnoiebndphjggimhjhdog)
+<img src="https://clipper.website/static/image/screenshot.png">
 
-[离线安装](https://www.yuque.com/yuqueclipper/av5y68/ayau8f)
+### Support Site
 
-### 如何开发
+- [FlowUs](https://flowus.cn/)
+- [Obsidian](https://obsidian.md/)
+- [Github](https://github.com)
+- [Yuque](https://www.yuque.com)
+- [Buildin.AI](https://buildin.ai/product)
+- [Notion](https://www.notion.so/)
+- [Youdao](https://note.youdao.com/)
+- [OneNote](https://www.onenote.com/)
+- [Bear](https://bear.app)
+- [Joplin](https://joplinapp.org/)
+- [Server Chan](http://sc.ftqq.com/3.version)
+- [dida365](https://dida365.com/)
+- [baklib](https://www.baklib-free.com/)
+- [wolai](https://www.wolai.com/)
+- [Leanote](https://github.com/leanote/leanote)
+- [Flomo](https://flomoapp.com/)
+- [Siyuan](https://b3log.org/siyuan)
+- [Ulysses](https://ulysses.app/)
+- [Confluence](https://www.atlassian.com/software/confluence)
 
-#### 开发
+### Install
 
+- [Chrome](https://chrome.google.com/webstore/detail/web-clipper/mhfbofiokmppgdliakminbgdgcmbhbac)
+
+- [Edge](https://microsoftedge.microsoft.com/addons/detail/opejamnnohhbjflpbhnmdlknhjkfhfdp)
+
+ps: Because the review takes a week, the version will fall behind.
+
+#### From Github
+
+1. Download the webclipper.zip from [release page](https://github.com/webclipper/web-clipper/releases)
+2. Go to **chrome://extensions/** and check the box for **Developer mode** in the top right.
+3. Locate the ZIP file on your computer and unzip it.
+4. Go back to the chrome://extensions/ page and click the **Load unpacked extension** button and select the unzipped folder for your extension to install it.
+
+### Develop
+
+```bash
+$ git clone https://github.com/webclipper/web-clipper.git
+$ cd web-clipper
+$ npm i
+$ npm run dev
 ```
-$ git clone https://github.com/yuquewebclipper/yuque-web-clipper.git
-$ cd yuque-web-clipper
-$ yarn
-$ yarn dev
+
+- You should load the 'dist/chrome' folder in Chrome.
+
+- You should load the 'dist/manifest.json' folder in Firefox.
+
+### Test
+
+```bash
+$ npm run test
 ```
 
-在 chrome 导入 dist 文件夹。为了区分测试和正式，测试的插件是红色背景的。
+### Feedback
 
-
-#### 测试
-
-```
-$ yarn test /src
-```
-
-⚠️ 目前测试文件中写了一个 token。在运行测试的时候，请**不要**用自己的 token 替换，否则会造成你**删除全部的个人以及团队知识库**
-
-### 剪藏所使用的开源框架与工具
-
-+ [React](https://github.com/facebook/react/)  
-+ [Mobx](https://github.com/mobxjs/mobx)
-+ [Ant Design](https://github.com/ant-design/ant-design/) (蚂蚁金服出品的一套企业级的 UI 设计语言和 React 实现。语雀同款。)
-+ [turndown](https://github.com/domchristie/turndown)(将HTML 转换为 Markdown。)
-+ [HyperMD](https://github.com/laobubu/HyperMD)(所见即所得的开源 Markdown 编辑器。)
-+ [Readability](https://github.com/mozilla/readability) (Mozilla 基于 Arc90's readability.js (1.7.1) script 编写的网页正文提取插件。）
-+ [SimpRead](https://github.com/Kenshin/simpread) (手动提取，删除元素等功能参考了 简悦(SimpRead) 的部分源码。)
-+ [dayjs](https://github.com/iamkun/dayjs) (用于替代 Moment.js,体积小。)
+| Type     | Link                                                 |
+| -------- | ---------------------------------------------------- |
+| Telegram | [Link](https://t.me/joinchat/HoVttRRUIA6aXASixzoqAw) |
